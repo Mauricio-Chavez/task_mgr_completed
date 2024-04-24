@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block title %} ({{err}}) {% endblock title %}
+
+{% block content %}
+
+<h1>Error ({{err}})</h1>
+<p>An error occurred while attempting to process your last request.</p>
+<p>Please try again later or contact an administrator if the issue persists</p>
+
+{% endblock content %}
