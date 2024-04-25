@@ -3,23 +3,36 @@
 {% block title %}Edit Task{% endblock title %}
 
 {% block content %}
-
+<style>
+    .btn-delete {
+        margin: 0;
+        padding: 0;
+    }
+</style>
 <table class="table">
     <thead>
         <tr>
             <th scope="col">Name</th>
+            <th scope="col">Summary</th>
             <th scope="col"></th>
         </tr>
     </thead>
     <tbody>
         {% for task in tasks %}
         <tr>
-            <td>{{task.name}}</td>
+            <td><a href="{{url_for('detail', pk=task['id'])}}">
+                {{task["name"]}}
+            </a></td>
+            <td>{{task.summary}}</td>
             <td>
                 <button type="button" class="btn btn-primary" data-bs-toggle="modal"
                 data-bs-target="#modal{{ loop.index }}">
-                    Edit Task
+                    <i class="fa-solid fa-pen-to-square"></i>
                 </button>
+                <form action="{{url_for('delete', pk=task['id'])}}" method="POST" class="btn btn-delete">
+                    <input type="hidden" name="_method" value="DELETE">
+                    <button type="submit" class="btn btn-danger"><i class="fa-solid fa-trash" class="btn btn-danger"></i></button>
+                </form>
                 <div class="modal fade" id="modal{{ loop.index }}" tabindex="-1" aria-labelledby="exampleModalLabel"
                         aria-hidden="true">
                         <div class="modal-dialog">
@@ -43,7 +56,14 @@
                                             <label for="description" class="form-label">Description</label>
                                             <textarea class="form-control" name="description" id="description"rows="3" >{{task.description}}</textarea>
                                         </div>
-                                        
+                                        <div class="mb-3">
+                                            <label for="state" class="form-label">State</label>
+                                            <select class="form-select" name="state" id="state">
+                                                <option value="False" {% if not task.is_done %} selected {% endif %}>Incompleto</option>
+                                                <option value="True" {% if task.is_done %} selected {% endif %}>Terminado</option>
+                                            </select>
+                                        </div>
+                                        <input type="hidden" name="_method" value="PUT">
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-secondary"
                                                 data-bs-dismiss="modal">Close</button>

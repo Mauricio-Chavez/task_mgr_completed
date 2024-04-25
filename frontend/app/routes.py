@@ -76,21 +76,79 @@ def edit():
         response.status_code
     )
 
+@app.get('/tasks/<msg>')
+def success(msg):
+    return render_template('success.html',msg=msg)
+
 @app.post('/tasks/<int:pk>')
 def update(pk):
+    print('update')
     url = "%s/%s" % (BACKEND_URL,pk)
-    name = request.form['name']
-    summary = request.form['summary']
-    description = request.form['description']
-    data = {
-        'name': name,
-        'summary': summary,
-        'description': description
-    }
-    response = requests.put(url, json=data)
+    method = request.form['_method']
+    if method == 'DELETE':
+        print('delete')
+        response = requests.delete(url)
+        if response.status_code == 204:
+            return redirect(url_for('success', msg='Task deleted successfully'))
+        return(
+            render_template('error.html',err=response.status_code),
+            response.status_code
+        )
+    elif method == 'PUT':
+        name = request.form['name']
+        summary = request.form['summary']
+        description = request.form['description']
+        state = request.form['state']
+        if state == 'True':
+            state = True
+        else:
+            state = False
+        data = {
+            'name': name,
+            'summary': summary,
+            'description': description,
+            'is_done': state
+        }
+        response = requests.put(url, json=data)
+        if response.status_code == 204:
+            return redirect(url_for('success', msg='Task updated successfully'))
+        return(
+            render_template('error.html',err=response.status_code),
+            response.status_code
+        )
+
+@app.delete('/tasks/<int:pk>')
+def delete(pk):
+    url = "%s/%s" % (BACKEND_URL,pk)
+    response = requests.delete(url)
+    if response.status_code == 204:
+        return redirect(url_for('success', msg='Task deleted successfully'))
+    return(
+        render_template('error.html',err=response.status_code),
+        response.status_code
+    )
+
+'''
+@app.get('tasks/edit'/<int:pk>)
+def edit(pk):
+    url = "%s/%s" % (BACKEND_URL,pk)
+    response = requests.get(url)
+    if response.status_code == 200:
+        task = response.json().get('task')
+        return render_template('edit.html',task=task)
+    return(
+        render_template('error.html',err=response.status_code),
+        response.status_code
+    )
+@app.post('tasks/edit'/<int:pk>)
+def submit_task_update(pk):
+    url = "%s/%s" % (BACKEND_URL,pk)
+    task_data =request.form
+    response = requests.put("success.html", msg="Task updated successfully")
     if response.status_code == 204:
         return redirect(url_for('task_list'))
     return(
         render_template('error.html',err=response.status_code),
         response.status_code
     )
+'''
